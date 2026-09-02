@@ -2,12 +2,9 @@ FROM python:3.8
 
 WORKDIR /app
 
-RUN apt-get update && apt-get upgrade -y && rm -rf /lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y
 
-RUN pip uninstall -y msgpack setuptools && \
-    pip install --no-cache-dir --upgrade "msgpack>=1.2.1" "setuptools>=78.1.1"
-
-RUN pip install --no-cache-dir --upgrade pip "setuptools>=78.1.1"
+RUN pip install --no-cache-dir --upgrade pip
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
