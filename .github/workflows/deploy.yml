@@ -33,12 +33,10 @@ jobs:
       - name: Escaneo de Vulnerabilidades (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
+          image-ref: 'app-backend:test'
           format: 'table'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
-
   build-and-push:
     needs: test-and-security
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
