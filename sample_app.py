@@ -17,4 +17,4 @@ def home():
 
 if __name__ == "__main__":
     modo_debug = os.getenv("FLASK_DEBUG", "True").lower() == "true"
-    sample.run(host='0.0.0.0', port=5050, debug=)
+    sample.run(host='0.0.0.0', port=5050, debug=modo_debug)
