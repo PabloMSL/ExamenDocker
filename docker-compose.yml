@@ -1,0 +1,51 @@
+services:
+  nginx-proxy-manager: 
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: proxy-manager
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    volumes:
+      - ./npm/data:/data
+      - ./npm/letsencrypt:/etc/letsencrypt
+    networks:
+      - red-cba
+
+  servidor-bd:
+    image: mysql:8.0
+    container_name: servidor-bd
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - red-cba
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app-backend:
+    build: .
+    container_name: app-backend
+    volumes:
+      - .:/home/myapp
+    environment:
+      FLASK_ENV: development
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    networks:
+      - red-cba
+    depends_on:
+      - servidor-bd
+
+networks:
+  red-cba:
+    name: red-cba-ejemplo
+
+volumes:
+  mysql-data:
+    name: mysql-data

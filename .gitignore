@@ -1,0 +1,4 @@
+venv/
+.env
+sample_app.sh
+llave-aws2.pem
