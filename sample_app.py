@@ -19,3 +19,6 @@ if __name__ == "__main__":
     modo_debug = os.getenv("FLASK_DEBUG", "True").lower() == "true"
     sample.run(host='0.0.0.0', port=5050, debug=modo_debug) #nosec B104, B201
 
+# Vulnerabilidad intencional (Hardcoded Secret + Exec)
+PASSWORD_SECRET = "12345_CLAVE_SUPER_SECRETA"
+exec("print('Ejecutando codigo inseguro')")
