@@ -2,6 +2,7 @@ services:
   nginx-proxy-manager: 
     image: 'jc21/nginx-proxy-manager:latest'
     container_name: proxy-manager
+    restart: always
     ports:
       - "80:80"
       - "81:81"
@@ -15,9 +16,12 @@ services:
   servidor-bd:
     image: mysql:8.0
     container_name: servidor-bd
+    restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:
@@ -29,18 +33,48 @@ services:
       retries: 5
 
   app-backend:
-    build: .
+    image: pablitodocker/app-backend:latest
     container_name: app-backend
-    volumes:
-      - .:/home/myapp
+    restart: always
     environment:
-      FLASK_ENV: development
+      FLASK_ENV: production
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "5050:5050"
     networks:
       - red-cba
     depends_on:
-      - servidor-bd
+      servidor-bd:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      update_config:
+        parallelism: 1
+        delay: 10s
+        order: start-first
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: always
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+    networks:
+      - red-cba
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - red-cba
 
 networks:
   red-cba:
@@ -49,3 +83,5 @@ networks:
 volumes:
   mysql-data:
     name: mysql-data
+  uptime-kuma-data:
+    name: uptime-kuma-data
